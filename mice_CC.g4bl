@@ -1,0 +1,165 @@
+# G4BL deck for MICE Step IV, initiated by P. Snopok
+# Edited by A. Liu, currents are used for GA opt. 
+# LiH edited based on real material; flanges added based on geometry
+
+g4ui when=4 "/vis/scene/add/axes 0 0 0 500 mm"
+g4ui when=4 "/vis/viewer/set/background 0. 0. 0."
+
+trace format=ascii
+
+param -unset Pmu=200
+param maxStep=5
+
+reference particle=mu+ \
+	beamZ=-3200 \
+	referenceMomentum=$Pmu
+
+particlecolor reference=1,1,1
+
+param -unset beamin=initial.beam
+param -unset nEvents=100000
+
+beam ascii filename=./back_forward_tracked_TKU_STN5.gbeam
+material Lireal a=6.020 z=3 density=0.534
+material LiH density=0.694 Lireal,0.8512 H,0.1461 C,0.00025 O,0.0032 Ca,0.0005
+# chemical components per http://mice.iit.edu/micenotes/public/pdf/MICE0448/MICE0448.pdf density per email from Ryan and Alan; The ratios of each element in the above note do not add up to 1, so the vacant was filled by H.
+material Scint density=1.032  C,0.922 H,0.078 # could be somewhat different from polystyrene MAUS is using
+                                              
+physics QGSP_BIC doStochastics=1 disable=Decay
+trackcuts keep=mu+,pi+,e+ kineticEnergyCut=5 maxTime=100000000
+
+# Values corresponding to MAUS geometry ID 70
+# From the optimization algorithms:
+# var1-10: T1, C, T2, M2, M1, F, M2, T2, C, T1
+include paramList.txt
+param curnt1=277.98*$var1/(0.3258-0.258)/0.1106*3968*1e-6
+param curnt2=277.98*$var1/(0.2801-0.258)/1.3143*15360*1e-6
+param curnt3=277.98*$var1/(0.3189-0.258)/0.1106*3584*1e-6
+param curnt4=$var2/(0.2889-0.258)/0.1995*3192*1e-6
+param curnt5=$var3/(0.3042-0.258)/0.2013*4830*1e-6
+param curnt6=$var4/(0.3618-0.267)/0.2133*11263*1e-6
+param curnt7=1*$var4/(0.3618-0.267)/0.2133*11266*1e-6
+param curnt8=0
+param curnt9=$var5/(0.2889-0.258)/0.1995*3192*1e-6
+param curnt10=$var6*277.98/(0.3189-0.258)/0.1106*3584*1e-6
+param curnt11=$var6*(277.98)/(0.2801-0.258)/1.3143*15360*1e-6
+param curnt12=$var6*(277.98)/(0.3258-0.258)/0.1106*3968*1e-6
+
+coil Focus innerRadius=267.6 outerRadius=361.9 length=213.1 maxR=267.6
+solenoid Focus coilName=Focus current=$curnt6 color=0.5,0.5,0.5,0.5
+coil Focus2 innerRadius=267.6 outerRadius=361.9 length=213.1 maxR=267.6
+solenoid Focus2 coilName=Focus2 current=$curnt7 color=0.5,0.5,0.5,0.5
+
+coil USMatch1 innerRadius=258 outerRadius=304.165 length=201.268 maxR=258
+solenoid USMatch1 coilName=USMatch1 current=$curnt5 color=0.5,0.5,0.5,0.5
+coil USMatch2 innerRadius=258 outerRadius=288.925 length=199.492 maxR=258
+solenoid USMatch2 coilName=USMatch2 current=$curnt4 color=0.5,0.5,0.5,0.5
+coil USEnd1 innerRadius=258 outerRadius=318.905 length=110.642 maxR=258
+solenoid USEnd1 coilName=USEnd1 current=$curnt3 color=0.5,0.5,0.5,0.5
+coil USCenter innerRadius=258 outerRadius=280.125 length=1314.30 maxR=258
+solenoid USCenter coilName=USCenter current=$curnt2 color=0.5,0.5,0.5,0.5
+coil USEnd2 innerRadius=258 outerRadius=325.783 length=110.642 maxR=258
+solenoid USEnd2 coilName=USEnd2 current=$curnt1 color=0.5,0.5,0.5,0.5
+
+coil DSMatch1 innerRadius=258 outerRadius=304.483 length=201.268 maxR=258
+solenoid DSMatch1 coilName=DSMatch1 current=$curnt8 color=0.5,0.5,0.5,0.5
+coil DSMatch2 innerRadius=258 outerRadius=288.608 length=199.492 maxR=258
+solenoid DSMatch2 coilName=DSMatch2 current=$curnt9 color=0.5,0.5,0.5,0.5
+coil DSEnd1 innerRadius=258 outerRadius=319.638 length=110.642 maxR=258
+solenoid DSEnd1 coilName=DSEnd1 current=$curnt10 color=0.5,0.5,0.5,0.5
+coil DSCenter innerRadius=258 outerRadius=280.416 length=1314.30 maxR=258
+solenoid DSCenter coilName=DSCenter current=$curnt11 color=0.5,0.5,0.5,0.5
+coil DSEnd2 innerRadius=258 outerRadius=326.22 length=110.642 maxR=258
+solenoid DSEnd2 coilName=DSEnd2 current=$curnt12 color=0.5,0.5,0.5,0.5
+
+tubs SciFi outerRadius=150 length=2.0 color=0,0,1,0.5 material=Scint
+tubs SciFiCut innerRadius=150 outerRadius=200 length=2.0 color=0,1,0,0.5 material=Al kill=1
+tubs TrackerPipe innerRadius=200 outerRadius=255 length=2491 material=Al \
+	kill=1 color=1,0,1,0.2
+tubs TrackerWindow outerRadius=200 length=1.0 material=Al color=1,0,0,0.5
+group Tracker1 material=Vacuum length=2491 radius=0
+#	place TrackerWindow z=-1245.0
+	place SciFi z=-549.95
+  place SciFiCut z=-549.95
+  place SciFi z=-199.8771
+	place SciFiCut z=-199.8771
+	place SciFi z=100.05
+	place SciFiCut z=100.05
+	place SciFi z=349.0577
+	place SciFiCut z=349.0577
+	place TrackerPipe z=0
+	place SciFi z=549.95
+	place SciFiCut z=549.95
+endgroup
+particlefilter filter radius=350 length=0.1 color='' kill=mu+ referenceWait=1
+group Tracker2 material=Vacuum length=2491 radius=0
+	place SciFi z=-549.8789
+	place SciFiCut z=-549.8789
+	place TrackerPipe z=0
+	place SciFi z=-349.9143
+	place SciFiCut z=-349.9143
+	place SciFi z=-100.05
+	place SciFiCut z=-100.05
+	place SciFi z=199.949
+	place SciFiCut z=199.949
+	place SciFi z=549.8789
+	place SciFiCut z=549.8789
+#	place TrackerWindow z=1245.0
+endgroup
+
+tubs Aperture innerRadius=257.9 outerRadius=258 length=6511.202 color='' kill=1
+# centerAperture: for FC module (overall aperture of the module)
+tubs centerAperture innerRadius=235 outerRadius=267.6 length=844 color=0,0,1,0.3 kill=1 
+# flangeU and flangeD (The information was estimated based on MICE note 0369, and talk by Lau at CM24)
+# flangeU1's front starts from -422 mm from the absorber center;
+# flangeU2's front starts from -339 mm from the absorber center;
+# flangeD's front starts from +225 mm from the absorber center;
+tubs flangeU1 innerRadius=180.2 outerRadius=193.1 length=82.5 color=0,1,0,0.3 kill=1
+tubs flangeU2 innerRadius=160 outerRadius=193.1 length=20 color=0,1,0,0.3 kill=1
+tubs flangeD innerRadius=160 outerRadius=235 length=40 color=0,1,0,0.3 kill=1
+
+tubs AfterAperture innerRadius=320. outerRadius=350 length=950 color=0,1,0,0.2 kill=1
+tubs Absorber length=65 outerRadius=225 material=Air color=1,0.5,0,0.5 
+
+place USEnd2 z=-3200.28
+place USCenter z=-2450.275
+
+place Tracker1 z=-2440.16
+
+place USEnd1 z=-1700.29
+place USMatch2 z=-1300.29
+place USMatch1 z=-860.645
+
+place Focus z=-202.2
+place Aperture z=0
+place Absorber z=0
+place centerAperture z=0
+#place flangeU1 z=-422 front=1
+#place flangeU2 z=-339 front=1
+place flangeD z=225 front=1
+place Focus2 z=202.2 
+
+place DSMatch1 z=860.645
+place DSMatch2 z=1300.29
+place DSEnd1 z=1700.29
+
+place Tracker2 z=2446.44
+
+place DSCenter z=2450.275
+place DSEnd2 z=3200.28
+place AfterAperture z=3255 front=1
+place filter z=4198.0
+
+#profile particle=mu+ file=twiss.dat coordinates=r zloop=-300:300:10
+zntuple TOF2 file=tof2 format=ascii z=4196
+zntuple TKU_STN5 file=TKU_STN5 format=ascii z=-2990.11
+zntuple TKU_STN4 file=TKU_STN4 format=ascii z=-2640.03
+zntuple TKU_STN3 file=TKU_STN3 format=ascii z=-2340.11
+zntuple TKU_STN2 file=TKU_STN2 format=ascii z=-2091.10
+zntuple TKU_STN1 file=TKU_STN1 format=ascii z=-1987.0
+zntuple TKD_STN1 file=TKD_STN1 format=ascii z=1896.0
+zntuple TKD_STN2 file=TKD_STN2 format=ascii z=2096.52
+zntuple TKD_STN3 file=TKD_STN3 format=ascii z=2346.38
+zntuple TKD_STN4 file=TKD_STN4 format=ascii z=2646.38
+zntuple TKD_STN5 file=TKD_STN5 format=ascii z=2996.31
+zntuple looklook file=looklook format=ascii zloop=-2999:3299:100
